@@ -5,13 +5,28 @@ creating a simple redis cache
 import redis
 import uuid
 from typing import Union, Callable
+import functools
 
 
-class Cache():
+def count_calls(fn: Callable) -> Callable:
+    """returns a Callable"""
+    qual_name = fn.__qualname__
+
+    @functools.wraps(fn)
+    def wrapper(self, *args, **kwargs):
+        """wrapper to carry out increment"""
+        self._redis.incr(qual_name)
+        return fn(self, *args, **kwargs)
+
+    return wrapper
+
+
+class Cache:
     """
     a class for a simple
     redis cache
     """
+
     def __init__(self):
         """
         Initialize a Redis client and flush the Redis database.
@@ -31,6 +46,7 @@ class Cache():
         self._redis = redis.Redis()
         self.flush = self._redis.flushdb()
 
+    @count_calls
     def store(self, data: Union[str, bytes, int, float]) -> str:
         """
         Receives a string data and stores it in the Redis cache.
