@@ -8,18 +8,40 @@ from typing import Union, Callable
 import functools
 
 
-def count_calls(fn: Callable) -> Callable:
-    """returns a Callable"""
-    qual_name = fn.__qualname__
+def count_calls(method: Callable) -> Callable:
+    """
+    Decorator to count the number of times a method is called.
 
-    @functools.wraps(fn)
+    Args:
+        method (Callable): The method to be decorated.
+
+    Returns:
+        Callable: A decorated version of the method.
+    """
+    # Get the qualified name of the method for use as a key
+    qual_name = method.__qualname__
+
+    # Define a wrapper function to carry out the increment and call the original method
+    @functools.wraps(method)
     def wrapper(self, *args, **kwargs):
-        """wrapper to carry out increment"""
+        """
+        Wrapper function to carry out the call counting and delegate to the original method.
+
+        Args:
+            self: The instance of the class the method belongs to.
+            *args: Positional arguments passed to the method.
+            **kwargs: Keyword arguments passed to the method.
+
+        Returns:
+            Any: The result of calling the original method.
+        """
+        # Increment the count associated with the method's qualified name
         self._redis.incr(qual_name)
-        return fn(self, *args, **kwargs)
+
+        # Call the original method with its arguments and keyword arguments
+        return method(self, *args, **kwargs)
 
     return wrapper
-
 
 class Cache:
     """
