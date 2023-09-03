@@ -21,11 +21,13 @@ def count_calls(method: Callable) -> Callable:
     # Get the qualified name of the method for use as a key
     qual_name = method.__qualname__
 
-    # Define a wrapper function to carry out the increment and call the original method
+    # Define a wrapper function to carry out the increment and
+    # call the original method
     @functools.wraps(method)
     def wrapper(self, *args, **kwargs):
         """
-        Wrapper function to carry out the call counting and delegate to the original method.
+        Wrapper function to carry out the call counting and delegate
+        to the original method.
 
         Args:
             self: The instance of the class the method belongs to.
@@ -65,7 +67,40 @@ def call_history(method: Callable) -> Callable:
     return wrapper
 
 
+def replay(method: Callable):
+    """
+    takes a callable and retrieves what is stored in the input
+    and output history of the callable
+    """
+    # Generate a unique Redis key for the inputs based on the method's name
+    key = "{}".format(method.__qualname__ + ":inputs")
 
+    # Create a Redis client
+    r = redis.Redis()
+
+    # Get the length (number of items) in the Redis list associated with 'key'
+    length = r.llen(key)
+
+    # Print the method's name and how many times it was called
+    print("{} was called {} times".format(method.__qualname__, length))
+
+    # Retrieve the inputs and outputs stored in Redis lists
+    inputs = r.lrange("{}:inputs".format(method.__qualname__), 0, -1)
+    outputs = r.lrange("{}:outputs".format(method.__qualname__), 0, -1)
+
+    # Iterate through the inputs and outputs, and display them
+    for inputs, outputs in zip(inputs, outputs):
+        try:
+            input = inputs.decode("utf-8")
+        except Exception:
+            input = ""
+        try:
+            output = outputs.decode("utf-8")
+        except Exception:
+            output = ""
+
+        # Print the method's name, input, and corresponding output
+        print("{}(*{}) -> {}".format(method.__qualname__, input, output))
 
 
 class Cache:
