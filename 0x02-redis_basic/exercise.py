@@ -47,6 +47,10 @@ def count_calls(method: Callable) -> Callable:
 
 
 def call_history(method: Callable) -> Callable:
+    """
+    acts as a decorator, takes the decorated function and store
+    its inputs and outputs in lists our Redis Cache using rpush
+    """
     # Define the wrapper function that will replace the original method
     @functools.wraps(method)
     def wrapper(self, *args, **kwargs):
@@ -82,7 +86,7 @@ def replay(method: Callable):
     length = r.llen(key)
 
     # Print the method's name and how many times it was called
-    print("{} was called {} times".format(method.__qualname__, length))
+    print("{} was called {} times:".format(method.__qualname__, length))
 
     # Retrieve the inputs and outputs stored in Redis lists
     inputs = r.lrange("{}:inputs".format(method.__qualname__), 0, -1)
