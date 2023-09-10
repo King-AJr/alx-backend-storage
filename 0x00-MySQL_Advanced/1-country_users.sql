@@ -5,9 +5,9 @@
 -- name, string (255 characters)
 -- country with an enum containig US, CO, and TN
 
-CREATE TABLE IF NOT EXISTS users(
-	id INT AUTO_INCREMENT PRIMARY KEY,
-	email varchar(255) UNIQUE NOT NULL,
-	name varchar(255),
-	country VARCHAR(255) CHECK (country IN('US', 'CO', 'TN')),
+CREATE TABLE IF NOT EXISTS users (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    email VARCHAR(255) UNIQUE NOT NULL,
+    name VARCHAR(255),
+    country VARCHAR(255) CHECK (country IN ('US', 'CO', 'TN'))
 );
