@@ -7,7 +7,7 @@
 
 CREATE TABLE IF NOT EXISTS users(
 	id INT AUTO_INCREMENT PRIMARY KEY,
-	email varchar(255) UNIQUE,
+	email varchar(255) UNIQUE NOT NULL,
 	name varchar(255),
-	country ENUM('US', 'CO', 'TN')
+	country VARCHAR(255) CHECK (country IN('US', 'CO', 'TN')),
 );
